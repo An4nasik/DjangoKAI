@@ -121,5 +121,3 @@ celebrities-hub/
 
 ---
 
-## Лицензия 📄
-MIT License. Подробности в файле [LICENSE](LICENSE).
