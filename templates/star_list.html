@@ -1,0 +1,171 @@
+<!-- templates/star_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebrities Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --hover-color: #2980b9;
+        }
+
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .nav-custom {
+            background: var(--primary-color) !important;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .star-card {
+            background: white;
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .star-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .star-image {
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .details-content {
+            max-height: 0;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .details-content.active {
+            max-height: 1000px;
+            opacity: 1;
+            padding: 20px;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.active {
+            transform: rotate(180deg);
+        }
+
+        .gradient-btn {
+            background: linear-gradient(135deg, var(--secondary-color), var(--hover-color));
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            color: white !important;
+            transition: opacity 0.3s ease;
+        }
+
+        .gradient-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .star-card {
+                margin-bottom: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg nav-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold" href="#">🌟 Celebrities Hub</a>
+            <a href="{% url 'add_star' %}" class="gradient-btn ms-auto">
+                <i class="fas fa-plus me-2"></i>Add New
+            </a>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 80px;">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for star in stars %}
+            <div class="col">
+                <div class="star-card" data-star-id="{{ star.id }}">
+                    {% if star.photo_url %}
+                    <img src="{{ star.photo_url }}" class="star-image w-100" loading="lazy" alt="{{ star.name }}">
+                    {% endif %}
+                    <div class="p-3">
+                        <h5 class="mb-1">{{ star.name }}</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">{{ star.profession }}</span>
+                            <span class="text-muted small">{{ star.birth_date }}</span>
+                        </div>
+                        <div class="details-content">
+                            <hr class="my-3">
+                            <div class="mb-2">
+                                <i class="fas fa-globe me-2"></i>
+                                <strong>Country:</strong> {{ star.country|default:"-" }}
+                            </div>
+                            <p class="mb-0 text-muted">{{ star.bio|default:"No biography available" }}</p>
+                        </div>
+                        <div class="text-end mt-2">
+                            <i class="toggle-icon fas fa-chevron-down text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.star-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const icon = card.querySelector('.toggle-icon');
+                    const content = card.querySelector('.details-content');
+                    
+                    content.classList.toggle('active');
+                    icon.classList.toggle('active');
+                    
+                    // Smooth scroll for mobile
+                    if (window.innerWidth < 768 && content.classList.contains('active')) {
+                        card.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                });
+            });
+        });
+
+        // Image lazy loading
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    observer.unobserve(img);
+                }
+            });
+        });
+
+        lazyImages.forEach(img => {
+            img.dataset.src = img.src;
+            img.src = '';
+            observer.observe(img);
+        });
+    </script>
+</body>
+</html>
